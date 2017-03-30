@@ -2,7 +2,8 @@
 CREATE TABLE TBL_USER(
   ID INT NOT NULL AUTO_INCREMENT,
   UserName VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  UsrPassword VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  Salt VARCHAR(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  EncryptedPassword VARCHAR(80) COLLATE utf8mb4_unicode_ci NOT NULL,
   Country INT NOT NULL,
   PhoneNumber VARCHAR(50) COLLATE utf8mb4_unicode_ci NULL,
   EmailID VARCHAR(50) COLLATE utf8mb4_unicode_ci NULL,
