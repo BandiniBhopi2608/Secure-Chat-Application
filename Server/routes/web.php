@@ -11,9 +11,6 @@
 |
 */
 
-Route::resource('cars', 'CarController');
-
-
 Route::get('/', function () {
     return view('welcome');
 });
