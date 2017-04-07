@@ -24,3 +24,4 @@ Route::get('/test',function(){
 Route::post('users/test','UserController@test');
 Route::post('users/{id}','UserController@getUser');
 Route::post('users/reg/register','UserController@register');
+Route::post('users/email/send','UserController@sendemail');

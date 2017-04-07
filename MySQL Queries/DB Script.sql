@@ -61,6 +61,12 @@ CREATE TABLE TBL_LOG(
   IsDeleted BOOLEAN NOT NULL DEFAULT 0,
   CONSTRAINT PK_ID PRIMARY KEY(ID)
 )
+
+CREATE TABLE Challenge(
+	Challenge VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+	PhoneNumber VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+	ChlngTimeStamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
 --------------------------------------------------XXX----------------------------------------
 
 ---------------------------- Adding Constraints on tables -----------------------------------
