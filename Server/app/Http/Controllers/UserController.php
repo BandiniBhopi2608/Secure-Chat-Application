@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use PHPMailer;
 use App\Models\User;
 use App\Models\Challenge;
 use Illuminate\Http\Request;
@@ -141,7 +142,7 @@ class UserController extends Controller
 			$user->UserName 			= $input['UserName'];
 			$user->Salt 				= bin2hex(random_bytes(32));//$hash["salt"]; // salt
 			$password 					= $input['Password'];
-			$user->EncryptedPassword 	= hash('sha512', $user->Salt.$password); //$hash["encrypted"]; // encrypted password
+			$user->EncryptedPassword 	= password_hash($user->Salt.$password, PASSWORD_BCRYPT); //$hash["encrypted"]; // encrypted password
 			$user->Country				= $input['Country'];
 			$user->PhoneNumber			= $input['PhoneNumber'];
 			$user->EmailID				= $input['EmailID'];
@@ -153,10 +154,42 @@ class UserController extends Controller
 		//return "Validation Sucessful";
 	}
 	
-	public function sendemail()
+	public function sendemail($id)
 	{
-		$error = ['error' => 'Email Sent Successfully', 'code' => '1'];
-		return response()->json($error);
+		//$input = $request->all();
+		$code = random_int(100000, 999999);
+		//$user = User::firstOrNew(['PhoneNumber' => $input['PhoneNumber']]);
+		//$user = User::where('PhoneNumber',$input['PhoneNumber']).get();
+		//if ($user->exists) {
+		$user = User::find($id);
+		if(empty($user)) {
+			$error = ['error' => 'PhoneNumber Not Found', 'code' => '1'];
+			return response()->json($error);
+		}
+		else {
+			$to = $user->EmailID;
+			$subject = "E2E Secure Chat : Verification Code";			 
+			$message = "<b>Please Enter below code to verify and continue chatting</b>";
+			$message .= "Your Verification code is ";
+			$message .=$code;
+			$header = "From:bandini.bhopi@student.csulb.edu \r\n";
+			$header .= "Cc:\r\n";
+			$header .= "MIME-Version: 1.0\r\n";
+			$header .= "Content-type: text/html\r\n";
+			$retval=mail($to,$subject,$message,$header);
+			if( $retval == true ) {
+				$emailstatus = ['Email Sent Successfully'];
+				return response()->json($error);
+			 }else {
+				$emailstatus = ['Email Not Sent Successfully'];
+				return response()->json($error);
+			 }
+		}
+		
+         
+        
+		//$error = ['error' => 'Email Sent Successfully', 'code' => '1'];
+		//return response()->json($error);
 		//return "In SendEmail Function : Start";
 	}
 }

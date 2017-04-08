@@ -49,7 +49,6 @@ class User extends Eloquent
 
 	protected $fillable = [
 		'UserName',
-		'Salt',
 		'EncryptedPassword',
 		'Country',
 		'PhoneNumber',
@@ -60,5 +59,10 @@ class User extends Eloquent
 		'ModifiedOn',
 		'IsActive',
 		'IsDeleted'
+	];
+	
+	protected $hidden = [
+		'Salt',
+		'EncryptedPassword'
 	];
 }
