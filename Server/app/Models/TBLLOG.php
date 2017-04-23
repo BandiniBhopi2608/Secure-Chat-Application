@@ -2,7 +2,7 @@
 
 /**
  * Created by Reliese Model.
- * Date: Fri, 31 Mar 2017 02:03:03 +0000.
+ * Date: Sat, 01 Apr 2017 22:41:17 +0000.
  */
 
 namespace App\Models;
@@ -10,7 +10,7 @@ namespace App\Models;
 use Reliese\Database\Eloquent\Model as Eloquent;
 
 /**
- * Class TBLLOG
+ * Class TblLog
  * 
  * @property int $ID
  * @property string $ErrorCode
@@ -25,14 +25,12 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  * @property \Carbon\Carbon $ModifiedOn
  * @property bool $IsActive
  * @property bool $IsDeleted
- * 
- * @property \App\Models\TBLUSER $t_b_l_u_s_e_r
  *
  * @package App\Models
  */
-class TBLLOG extends Eloquent
+class TblLog extends Eloquent
 {
-	protected $table = 'TBL_LOG';
+	protected $table = 'tbl_log';
 	protected $primaryKey = 'ID';
 	public $timestamps = false;
 
@@ -63,9 +61,4 @@ class TBLLOG extends Eloquent
 		'IsActive',
 		'IsDeleted'
 	];
-
-	public function t_b_l_u_s_e_r()
-	{
-		return $this->belongsTo(\App\Models\TBLUSER::class, 'ModifiedBy');
-	}
 }

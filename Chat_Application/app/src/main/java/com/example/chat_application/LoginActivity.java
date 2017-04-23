@@ -3,32 +3,27 @@ package com.example.chat_application;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.example.chat_application.Interface.ChatServerRest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.*;
-import java.util.regex.Pattern;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
-import static android.R.attr.password;
 
 /**
  * Created by brin pereira on 01/04/2017.
@@ -71,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
             {
                 pDialog.setMessage("Login ...");
                 pDialog.show();
-                loginUser();
+                //loginUser();
                 pDialog.dismiss();
                 Intent i = new Intent(getApplicationContext(), ChatScreenActivity.class);
                 startActivity(i);
@@ -80,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
+    /*
         public void loginUser()
     {
             Retrofit adapter = new Retrofit.Builder().baseUrl(ChatServerRest.url).build();
@@ -132,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
-
+*/
     public void replyAfterChallenge (String salt , String challenge)
     {
             // do HMAC calculation and provide tag and then send it server

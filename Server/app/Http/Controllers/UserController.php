@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use PHPMailer;
+//use PHPMailer;
+use Mail;
+use App\Mail\SendVerificationCode;
 use App\Models\User;
 use App\Models\Challenge;
 use Illuminate\Http\Request;
@@ -100,18 +102,15 @@ class UserController extends Controller
 		}
 	}
 	
-	public function register(Request $request)	{
-		
-		$input = $request->all();
-		
+	public function register(Request $request)	{		
+		$input = $request->all();		
 		$validationRules = [
 			'UserName' => 'required|max:50',
 			'Password' => 'required|max:80',
 			'Country' => 'required|numeric',
 			'PhoneNumber' => 'required|numeric|unique:User',
 			'EmailID' => 'required|email|unique:User'
-		];
-		
+		];		
 		$errorMessages = [
 			'UserName.required' => ' The User Name field is required.',
 			'UserName.max' => ' The User Name may not be greater than 50 characters.',
@@ -124,14 +123,11 @@ class UserController extends Controller
 			'PhoneNumber.unique' => ' The Phone Number should be unique.',
 			'EmailID.required' => ' The EmailID field is required.',
 			'EmailID.unique' => ' The EmailID should be unique.',
-		];
-		
-		$validator = Validator::make($input, $validationRules, $errorMessages);
-		
+		];		
+		$validator = Validator::make($input, $validationRules, $errorMessages);		
 		if ($validator->fails()) {			
 			return response()->json($validator->errors());
-		}
-		
+		}		
 		$user = User::firstOrNew(['PhoneNumber' => $input['PhoneNumber']]); //Check user exists or not based on unique id column instead of Phone number
 		if ($user->exists) {
 			// user already exists
@@ -154,42 +150,22 @@ class UserController extends Controller
 		//return "Validation Sucessful";
 	}
 	
-	public function sendemail($id)
+	public function sendemail(Request $request)
 	{
-		//$input = $request->all();
-		$code = random_int(100000, 999999);
-		//$user = User::firstOrNew(['PhoneNumber' => $input['PhoneNumber']]);
-		//$user = User::where('PhoneNumber',$input['PhoneNumber']).get();
-		//if ($user->exists) {
-		$user = User::find($id);
-		if(empty($user)) {
-			$error = ['error' => 'PhoneNumber Not Found', 'code' => '1'];
-			return response()->json($error);
-		}
-		else {
-			$to = $user->EmailID;
-			$subject = "E2E Secure Chat : Verification Code";			 
-			$message = "<b>Please Enter below code to verify and continue chatting</b>";
-			$message .= "Your Verification code is ";
-			$message .=$code;
-			$header = "From:bandini.bhopi@student.csulb.edu \r\n";
-			$header .= "Cc:\r\n";
-			$header .= "MIME-Version: 1.0\r\n";
-			$header .= "Content-type: text/html\r\n";
-			$retval=mail($to,$subject,$message,$header);
-			if( $retval == true ) {
-				$emailstatus = ['Email Sent Successfully'];
-				return response()->json($error);
-			 }else {
-				$emailstatus = ['Email Not Sent Successfully'];
-				return response()->json($error);
-			 }
-		}
-		
-         
-        
-		//$error = ['error' => 'Email Sent Successfully', 'code' => '1'];
-		//return response()->json($error);
-		//return "In SendEmail Function : Start";
+		$input = $request->all();
+		$activationcode = random_int(100000, 999999);
+		$username = $input['UserName'];
+		$email = $input['EmailID'];
+		$data = array( 'username' => $username, 'activationcode' => $activationcode );
+		Mail::send('emails.VerificationMail', $data, function($message) use ($email, $username) {						
+            $message->to($email, $username)
+                ->subject('Your Activation Code');
+        });
+		dd('Mail send successfully');
+		/*
+		$mail = 'bandini.bhopi@gmail.com';
+		Mail::to($mail)->send(new SendVerificationCode);
+		dd('Mail send successfully');
+		*/
 	}
 }

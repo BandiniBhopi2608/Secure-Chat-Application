@@ -1,25 +1,23 @@
 package com.example.chat_application;
 
-import android.net.Uri;
-import android.support.v4.app.FragmentManager;
+import android.provider.Contacts;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Activity;
-import android.view.Menu;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.*;
 import android.content.Intent;
 import android.app.ProgressDialog;
-import com.example.chat_application.*;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
+
+import com.example.chat_application.CommonUtility.RetroBuilder;
+import com.example.chat_application.Interface.ChatServerRest;
+import com.example.chat_application.Model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,9 +27,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
-import static android.R.attr.name;
-import static java.security.AccessController.getContext;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -49,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.register);
 
         //initialization of all editText
+        //For Testing
         edtFirst = (EditText) findViewById(R.id.edtfirstname);
         edtLast = (EditText) findViewById(R.id.edtlastname);
         edtUser = (EditText) findViewById(R.id.edtUsername);
@@ -120,9 +117,11 @@ public class RegisterActivity extends AppCompatActivity {
                     pDialog.show();
                     registerUser();
                     pDialog.dismiss();
-                  // verificationCode();
+                    /*
+                    // verificationCode();
                     Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
                     startActivity(i);
+                    */
                     finish();
 
                 }
@@ -131,58 +130,80 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    //Bandini added this function on 22-04-2017
+    //This function register the user and ask to verify
     public void registerUser()
     {
-        Retrofit adapter = new Retrofit.Builder().baseUrl(ChatServerRest.url).build();
+        //Creating User object and assigning values to it
+        //region
+        final User objUser=new User();
+        //objUser.setUserName(edtUser.getText().toString());
+        objUser.setFirstName(edtFirst.getText().toString().trim());
+        objUser.setLastName(edtLast.getText().toString().trim());
+        objUser.setPassword(edtPass.getText().toString());
+        objUser.setCountry(edtNumber.getText().toString());
+        objUser.setPhoneNumber(edtPnumber.getText().toString().trim());
+        objUser.setEmailID(edtEmail.getText().toString().trim());
+        //endregion
 
-        //Creating Rest Services
-        final ChatServerRest restInterface = adapter.create(ChatServerRest.class);
-
-        //Calling method to register
-
-        restInterface.register(edtUser.getText().toString(),edtPass.getText().toString(), edtNumber.getText().toString(),edtPnumber.getText().toString(),
-                edtEmail.getText().toString(), new Callback<ResponseBody>()
-                {
-
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)
-                    {
-                        if (response.isSuccessful())
-                        {
-                            try
-                            {
-                             JSONObject resp = new JSONObject(response.body().string());
-                             //   Bundle bundle = new Bundle();
-//                                bundle.putString("user_id", resp.getString("id"));
-
+        try {
+            RetroBuilder.ConnectToWebService().register(objUser).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        try {
+                            JSONObject serverResp = new JSONObject(response.body().string());
+                            if(serverResp.has("error")) {
+                                /*Error Codes received in response
+                                Error Code 1 : Validation Failed
+	                            Error Code 2 : Phone number is not unique. That means User already exits
+	                            Error Code 3 : EmailID is not unique
+	                            Error Code 4 : Could not send Verification Email. Therefore Registration fails.
+                                 */
+                                int intErrorCode = serverResp.getInt("code");
+                                switch (intErrorCode) {
+                                    case 1:
+                                        //Brin Task  : Show Error Message : 'Validation failed for some fields. Please check input and try again'
+                                        break;
+                                    case 2:
+                                        //Brin Task : User already exits. Render to login screen and set phone number received in
+                                        // response. Use bundle. Refer Bhor Code
+                                        break;
+                                    case 3:
+                                        //Brin Task : Show Error Message : 'EmailID should be unique'
+                                        break;
+                                    case 4:
+                                        //Brin Task: Show Error Message : 'Registration failed. Check your EmailID or contact administrator'.
+                                        break;
+                                }
                             }
-                            catch (JSONException e)
-                            {
-                                e.printStackTrace();
-                            }
-                            catch (IOException e)
-                            {
-                                e.printStackTrace();
-                            }
-                            catch (Exception e)
-                            {
-                                e.printStackTrace();
+                            else { //User Data saved in database but not active as verification pending
+                                objUser.setID(Integer.parseInt(serverResp.getString("ID")));
+                                Intent intent = new Intent(RegisterActivity.this, VerificationActivity.class);
+                                intent.putExtra("UserObject", objUser);
+                                startActivity(intent);
                             }
                         }
-                        else
-                        {
-                            Toast.makeText(RegisterActivity.this, "Error:Please try again", Toast.LENGTH_LONG).show();
-
+                        catch (Exception e) {
+                        e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t)
-                    {
-                        Toast.makeText(RegisterActivity.this, "Error: " + t.getMessage() + ". Please try again", Toast.LENGTH_LONG).show();
-                        t.printStackTrace();
-
+                    else {
+                        //Brin Task: Show Error Message : "Error: " + response.errorBody().string() + ". Please try again or contact administrator."
                     }
-                });
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    //Brin Task: Show Error Message : "Error: " + t.getMessage() + ". Please try again or contact administrator."
+                    t.printStackTrace();
+                }
+            });
+
+        } catch (Exception e) {
+            Log.d("onResponse", "There is an error");
+            e.printStackTrace();
+        }
     }
+
 }

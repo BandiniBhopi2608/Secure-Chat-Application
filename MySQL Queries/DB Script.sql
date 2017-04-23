@@ -1,6 +1,8 @@
 ----------------------------- Create table Scripts --------------------------------------------------------
 CREATE TABLE User(
   ID INT NOT NULL AUTO_INCREMENT,
+  FirstName VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  LastName VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   UserName VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   Salt VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   EncryptedPassword VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
