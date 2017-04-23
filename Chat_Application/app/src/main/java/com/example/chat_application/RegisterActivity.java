@@ -1,6 +1,7 @@
 package com.example.chat_application;
 
 import android.provider.Contacts;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import static java.security.AccessController.getContext;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -112,16 +118,14 @@ public class RegisterActivity extends AppCompatActivity {
                     edtEmail.requestFocus();
 
                 }
-                else {
+                else
+                {
                     pDialog.setMessage("Please wait ...");
                     pDialog.show();
                     registerUser();
                     pDialog.dismiss();
-                    /*
-                    // verificationCode();
                     Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
                     startActivity(i);
-                    */
                     finish();
 
                 }
@@ -164,16 +168,26 @@ public class RegisterActivity extends AppCompatActivity {
                                 switch (intErrorCode) {
                                     case 1:
                                         //Brin Task  : Show Error Message : 'Validation failed for some fields. Please check input and try again'
+                                        Toast.makeText(getApplicationContext(), "Validation failed. Please check input and try again", Toast.LENGTH_LONG).show();
                                         break;
                                     case 2:
                                         //Brin Task : User already exits. Render to login screen and set phone number received in
-                                        // response. Use bundle. Refer Bhor Code
+                                        // response. Use bundle.
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("phone", serverResp.getString("phone"));
+                                        bundle.putString("id", serverResp.getString("id"));
+                                        LoginActivity loginagain = new LoginActivity();  // vague code
+                                        Toast.makeText(getApplicationContext(), "We located your account. Please login.", Toast.LENGTH_LONG).show();
+                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                        startActivity(intent);
                                         break;
                                     case 3:
                                         //Brin Task : Show Error Message : 'EmailID should be unique'
+                                        Toast.makeText(getApplicationContext(), "This email id is already register", Toast.LENGTH_LONG).show();
                                         break;
                                     case 4:
                                         //Brin Task: Show Error Message : 'Registration failed. Check your EmailID or contact administrator'.
+                                        Toast.makeText(getApplicationContext(), "Registration failed. Check EmailID or contact administrator", Toast.LENGTH_LONG).show();
                                         break;
                                 }
                             }
@@ -190,6 +204,14 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                     else {
                         //Brin Task: Show Error Message : "Error: " + response.errorBody().string() + ". Please try again or contact administrator."
+                        try
+                        {
+                            Toast.makeText(getApplicationContext(), "Error: " + response.errorBody().string() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
