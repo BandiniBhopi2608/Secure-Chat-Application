@@ -34,7 +34,9 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".VerificationActivity" />
-        <activity android:name=".ScreenActivity"></activity>
+        <activity android:name=".ScreenActivity" />
+        <activity android:name=".QRCodeGeneratorActivity" />
+        <activity android:name=".QRCodeREaderActivity"></activity>
     </application>
 
 </manifest>

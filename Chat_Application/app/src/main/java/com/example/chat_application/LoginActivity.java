@@ -11,7 +11,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.example.chat_application.CommonUtility.HashFunctions;
+import com.example.chat_application.CommonUtility.RetroBuilder;
 import com.example.chat_application.Interface.ChatServerRest;
+import com.example.chat_application.Model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,11 +34,14 @@ import retrofit2.Retrofit;
 
 public class LoginActivity extends AppCompatActivity {
 
-    Button btnsub1 , btnsub2;
+    //Variable Declaration
+    //region
+    Button btnsub1, btnsub2;
+    EditText edtPnumber, edtPassword;
 
-    EditText edtPnumber;
     private ProgressDialog pDialog;
-
+    private User objUser;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +49,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         btnsub1 = (Button) findViewById(R.id.button2); // register button
         btnsub2 = (Button) findViewById(R.id.button3); // login button
-        edtPnumber = (EditText) findViewById(R.id.edtNumber);
+        edtPnumber = (EditText) findViewById(R.id.edtLUsername);
+        edtPassword = (EditText) findViewById(R.id.edtLPass);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            //Set Phone number here coming from registration when user already exists
+            edtPnumber.setText(intent.getExtras().getString("phone"));
+        }
 
 
         //Registration button functionality
@@ -59,83 +72,101 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         //  login button functionality
-        btnsub2.setOnClickListener(new View.OnClickListener()
-        {
+        btnsub2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 pDialog.setMessage("Login ...");
                 pDialog.show();
-                //loginUser();
+                loginUser();
                 pDialog.dismiss();
-                Intent i = new Intent(getApplicationContext(), ChatScreenActivity.class);
-                startActivity(i);
                 finish();
             }
         });
 
     }
-    /*
-        public void loginUser()
-    {
-            Retrofit adapter = new Retrofit.Builder().baseUrl(ChatServerRest.url).build();
-        //Creating Rest Services
-            final ChatServerRest restInterfaceL = adapter.create(ChatServerRest.class);
-        //Calling method to login
 
-        restInterfaceL.login(edtPnumber.getText().toString(),new Callback<ResponseBody>()
-                {
+    public void loginUser() {
+        //String strSaltedPwd = HashFunctions.getHashValue(edtPassword.getText().toString().trim());
+        objUser = new User();
+        objUser.setPhoneNumber(edtPnumber.getText().toString().trim());
+        try {
+            RetroBuilder.ConnectToWebService().login(objUser, 1).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        try {
+                            JSONObject serverResp = new JSONObject(response.body().string());
+                            if (serverResp.has("error")) {
+                                Toast.makeText(getApplicationContext(), serverResp.getString("error"), Toast.LENGTH_LONG).show();
+                            } else {
+                                //In response, we received salt and challenge. Now we will calculate tag and send it to the Server again to verify
+                                objUser.setChallenge(serverResp.getString("Challenge"));
+                                String strSaltedPwd = HashFunctions.getHashValue(edtPassword.getText().toString().trim(), serverResp.getString("Salt"));
+                                String strTag = HashFunctions.getSHA512SecurePWD(strSaltedPwd, objUser.getChallenge());
+                                objUser.setTag(strTag);
+                                fnReplyToChallenge();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            Toast.makeText(getApplicationContext(), "Error: " + response.errorBody().string() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Error: " + t.getMessage() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
+                    t.printStackTrace();
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void fnReplyToChallenge() {
+        try {
+            if (objUser != null) {
+                RetroBuilder.ConnectToWebService().login(objUser, 2).enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)
-                    {
-                        if (response.isSuccessful())
-                        {
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
                             try {
-                                JSONObject json = new JSONObject(response.body().string());
-                                if (json.has("error")) {
-                                    Toast.makeText(LoginActivity.this, json.getString("error"), Toast.LENGTH_LONG).show();
+                                JSONObject serverResp = new JSONObject(response.body().string());
+                                if (serverResp.has("error")) {
+                                    Toast.makeText(getApplicationContext(), serverResp.getString("error"), Toast.LENGTH_LONG).show();
+                                } else {
+                                    Intent i = new Intent(getApplicationContext(), QRCodeREaderActivity.class); //ScreenActivity.class);
+                                    startActivity(i);
                                 }
-                                else
-                                {
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("user_id", json.getString("ID"));
-
-                                    String salt = json.getString("salt");
-                                    String challenge = json.getString("challenge");
-                                    replyAfterChallenge(salt, challenge);
-
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                Toast.makeText(getApplicationContext(), "Error: " + response.errorBody().string() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        else
-                        {
-                            Toast.makeText(LoginActivity.this, "Error:Please try again", Toast.LENGTH_LONG).show();
-
-                        }
                     }
-
 
                     @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t)
-                    {
-                        Toast.makeText(LoginActivity.this, "Error: " + t.getMessage() + ". Please try again", Toast.LENGTH_LONG).show();
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), "Error: " + t.getMessage() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
                         t.printStackTrace();
-
                     }
                 });
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
-*/
-    public void replyAfterChallenge (String salt , String challenge)
-    {
-            // do HMAC calculation and provide tag and then send it server
-
-    }
-
-
-    }
+}
 
 

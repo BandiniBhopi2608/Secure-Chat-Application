@@ -13,6 +13,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.*;
+
 import android.content.Intent;
 import android.app.ProgressDialog;
 
@@ -22,6 +23,7 @@ import com.example.chat_application.Model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -29,11 +31,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 import static java.security.AccessController.getContext;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -45,8 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
 
@@ -112,42 +114,37 @@ public class RegisterActivity extends AppCompatActivity {
                     edtPnumber.requestFocus();
                 }
 
-                if (!EMAIL_ADDRESS_PATTERN.matcher(edtEmail.getText()).matches())
-                {
+                if (!EMAIL_ADDRESS_PATTERN.matcher(edtEmail.getText()).matches()) {
                     edtEmail.setError("Please enter valid email addresss");
                     edtEmail.requestFocus();
 
-                }
-                else
-                {
+                } else {
                     pDialog.setMessage("Please wait ...");
                     pDialog.show();
                     registerUser();
                     pDialog.dismiss();
-                    Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
-                    startActivity(i);
+                    //Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
+                    //startActivity(i);
                     finish();
 
                 }
-
             }
         });
     }
 
     //Bandini added this function on 22-04-2017
     //This function register the user and ask to verify
-    public void registerUser()
-    {
+    public void registerUser() {
         //Creating User object and assigning values to it
         //region
-        final User objUser=new User();
-        //objUser.setUserName(edtUser.getText().toString());
+        final User objUser = new User();
         objUser.setFirstName(edtFirst.getText().toString().trim());
         objUser.setLastName(edtLast.getText().toString().trim());
         objUser.setPassword(edtPass.getText().toString());
         objUser.setCountry(edtNumber.getText().toString());
         objUser.setPhoneNumber(edtPnumber.getText().toString().trim());
         objUser.setEmailID(edtEmail.getText().toString().trim());
+        objUser.setSalt(BCrypt.gensalt());
         //endregion
 
         try {
@@ -157,7 +154,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         try {
                             JSONObject serverResp = new JSONObject(response.body().string());
-                            if(serverResp.has("error")) {
+                            if (serverResp.has("error")) {
                                 /*Error Codes received in response
                                 Error Code 1 : Validation Failed
 	                            Error Code 2 : Phone number is not unique. That means User already exits
@@ -167,12 +164,9 @@ public class RegisterActivity extends AppCompatActivity {
                                 int intErrorCode = serverResp.getInt("code");
                                 switch (intErrorCode) {
                                     case 1:
-                                        //Brin Task  : Show Error Message : 'Validation failed for some fields. Please check input and try again'
                                         Toast.makeText(getApplicationContext(), "Validation failed. Please check input and try again", Toast.LENGTH_LONG).show();
                                         break;
                                     case 2:
-                                        //Brin Task : User already exits. Render to login screen and set phone number received in
-                                        // response. Use bundle.
                                         Bundle bundle = new Bundle();
                                         bundle.putString("phone", serverResp.getString("phone"));
                                         bundle.putString("id", serverResp.getString("id"));
@@ -182,34 +176,25 @@ public class RegisterActivity extends AppCompatActivity {
                                         startActivity(intent);
                                         break;
                                     case 3:
-                                        //Brin Task : Show Error Message : 'EmailID should be unique'
                                         Toast.makeText(getApplicationContext(), "This email id is already register", Toast.LENGTH_LONG).show();
                                         break;
                                     case 4:
-                                        //Brin Task: Show Error Message : 'Registration failed. Check your EmailID or contact administrator'.
                                         Toast.makeText(getApplicationContext(), "Registration failed. Check EmailID or contact administrator", Toast.LENGTH_LONG).show();
                                         break;
                                 }
-                            }
-                            else { //User Data saved in database but not active as verification pending
+                            } else { //User Data saved in database but not active as verification pending
                                 objUser.setID(Integer.parseInt(serverResp.getString("ID")));
                                 Intent intent = new Intent(RegisterActivity.this, VerificationActivity.class);
                                 intent.putExtra("UserObject", objUser);
                                 startActivity(intent);
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        catch (Exception e) {
-                        e.printStackTrace();
-                        }
-                    }
-                    else {
-                        //Brin Task: Show Error Message : "Error: " + response.errorBody().string() + ". Please try again or contact administrator."
-                        try
-                        {
+                    } else {
+                        try {
                             Toast.makeText(getApplicationContext(), "Error: " + response.errorBody().string() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
-                        }
-                        catch (IOException e)
-                        {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -217,7 +202,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    //Brin Task: Show Error Message : "Error: " + t.getMessage() + ". Please try again or contact administrator."
+                    Toast.makeText(getApplicationContext(), "Error: " + t.getMessage() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
                     t.printStackTrace();
                 }
             });

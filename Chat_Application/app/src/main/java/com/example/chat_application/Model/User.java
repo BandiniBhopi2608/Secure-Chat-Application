@@ -1,6 +1,7 @@
 package com.example.chat_application.Model;
 
 import java.io.Serializable;
+import java.security.PrivateKey;
 
 /**
  * Created by BANDINI on 22-04-2017.
@@ -11,11 +12,14 @@ public class User implements Serializable {
     private int ID;
     private String FirstName;
     private String LastName;
-    private  String Country;
+    private String Country;
     private String PhoneNumber;
     private String EmailID;
     private String Password;
     private String VerificationCode;
+    private String Tag;
+    private String Challenge;
+    private String Salt;
 
     public int getID() {
         return ID;
@@ -88,5 +92,29 @@ public class User implements Serializable {
 
     public void setVerificationCode(String verificationCode) {
         VerificationCode = verificationCode;
+    }
+
+    public String getTag() {
+        return Tag;
+    }
+
+    public void setTag(String tag) {
+        Tag = tag;
+    }
+
+    public String getChallenge() {
+        return Challenge;
+    }
+
+    public void setChallenge(String challenge) {
+        Challenge = challenge;
+    }
+
+    public String getSalt() {
+        return Salt;
+    }
+
+    public void setSalt(String salt) {
+        Salt = salt;
     }
 }

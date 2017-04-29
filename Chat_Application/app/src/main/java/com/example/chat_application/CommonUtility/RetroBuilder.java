@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetroBuilder {
 
-    private static final String strServerURL = "http://localhost/api/";//"https://cryptoninja.me/api/";
+    private static final String strServerURL = "https://cryptoninja.me/api/";
     public  static ChatServerRest ConnectToWebService()
     {
         Retrofit retrofit = new Retrofit.Builder()
