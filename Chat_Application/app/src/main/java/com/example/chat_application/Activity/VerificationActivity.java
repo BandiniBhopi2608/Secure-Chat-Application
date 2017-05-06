@@ -1,4 +1,4 @@
-package com.example.chat_application;
+package com.example.chat_application.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -10,12 +10,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.chat_application.CommonUtility.EncryptionUtility;
+import com.example.chat_application.CommonUtility.PreferenceManager;
 import com.example.chat_application.CommonUtility.RetroBuilder;
+import com.example.chat_application.Model.PreferenceKeys;
 import com.example.chat_application.Model.User;
+import com.example.chat_application.R;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -89,9 +94,22 @@ public class VerificationActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(), "Verification does not match. Please try again.", Toast.LENGTH_LONG).show();
                                         break;
                                 }
-                            } else { //Verification Successfull.
-                                Intent i = new Intent(getApplicationContext(), ScreenActivity.class);
-                                startActivity(i);
+                            } else { //Verification Successful.
+                                PreferenceManager.save(PreferenceKeys.USER_ID, Integer.parseInt(serverResp.getString("ID"))); //Save User ID
+                                //PreferenceManager.save(PreferenceKeys.JWT, serverResp.getString("token")); //Save JWT
+                                //Generate Private and Public Key and Save
+                                List<String> lstKeys = EncryptionUtility.fnGeneratePublicPrivateKey();
+                                if(lstKeys.size() == 2) {
+                                    PreferenceManager.save(PreferenceKeys.PUBLIC_KEY, lstKeys.get(0));
+                                    PreferenceManager.save(PreferenceKeys.PRIVATE_KEY, lstKeys.get(1));
+                                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                                    startActivity(i);
+                                }
+                                else
+                                {
+                                    Toast.makeText(getApplicationContext(), "Error occurred while generating keys.", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

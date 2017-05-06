@@ -1,6 +1,9 @@
 package com.example.chat_application.Interface;
 
+import com.example.chat_application.Model.Message;
 import com.example.chat_application.Model.User;
+
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -29,6 +32,15 @@ public interface ChatServerRest {
 
     @POST("users/login/{requestno}")
     Call<ResponseBody> login(@Body User user, @Path("requestno") int requestno);
+
+    @POST("users/{id}")
+    Call<User> getUser(@Body JSONObject json, @Path("id") String id);
+
+    @POST("users/message/send")
+    Call<Message> sendMessage(@Body Message objMessage);
+
+    @POST("users/message/{id}/{mid}")
+    Call<ResponseBody> getMessages(@Path("id") int id, @Path("mid") int mid);
 
 }
 

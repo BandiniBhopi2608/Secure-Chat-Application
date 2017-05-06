@@ -1,7 +1,5 @@
-package com.example.chat_application;
+package com.example.chat_application.Activity;
 
-import android.provider.Contacts;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,17 +9,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.regex.*;
 
 import android.content.Intent;
 import android.app.ProgressDialog;
 
 import com.example.chat_application.CommonUtility.RetroBuilder;
-import com.example.chat_application.Interface.ChatServerRest;
 import com.example.chat_application.Model.User;
+import com.example.chat_application.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -29,14 +25,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-import static java.security.AccessController.getContext;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -144,6 +132,7 @@ public class RegisterActivity extends AppCompatActivity {
         objUser.setCountry(edtNumber.getText().toString());
         objUser.setPhoneNumber(edtPnumber.getText().toString().trim());
         objUser.setEmailID(edtEmail.getText().toString().trim());
+        String salt = BCrypt.gensalt();
         objUser.setSalt(BCrypt.gensalt());
         //endregion
 
@@ -183,6 +172,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         break;
                                 }
                             } else { //User Data saved in database but not active as verification pending
+                                String strID = serverResp.getString("ID");
                                 objUser.setID(Integer.parseInt(serverResp.getString("ID")));
                                 Intent intent = new Intent(RegisterActivity.this, VerificationActivity.class);
                                 intent.putExtra("UserObject", objUser);

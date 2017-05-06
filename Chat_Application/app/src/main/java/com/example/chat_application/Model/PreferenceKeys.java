@@ -5,6 +5,8 @@ package com.example.chat_application.Model;
  */
 
 public class PreferenceKeys {
-    public static final String PublicKey = "PUBLIC_KEY";
-    public static final String UserID    = "USER_ID";
+    public static final String PUBLIC_KEY = "PUBLIC_KEY";
+    public static final String PRIVATE_KEY = "PRIVATE_KEY";
+    public static final String USER_ID    = "USER_ID";
+    public static final String JWT    = "JWT";
 }

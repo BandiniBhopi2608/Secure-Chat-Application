@@ -3,20 +3,20 @@ package com.example.chat_application.CommonUtility;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 
+import com.example.chat_application.Model.EncryptionConfiguration;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 
 /**
  * Created by BANDINI on 23-04-2017.
@@ -37,9 +37,9 @@ public class HashFunctions {
     public static String getSHA512SecurePWD(String strPassword, String strChallenge) {
         String strHashedPassword = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            md.update(strChallenge.getBytes("UTF-8"));
-            byte[] bytes = md.digest(strPassword.getBytes("UTF-8"));
+            MessageDigest md = MessageDigest.getInstance(EncryptionConfiguration.HMAC_ALGORITHM_LOGIN); //SHA-512
+            md.update(strChallenge.getBytes(EncryptionConfiguration.CHARACTER_ENCODING));//UTF-8
+            byte[] bytes = md.digest(strPassword.getBytes(EncryptionConfiguration.CHARACTER_ENCODING));//UTF-8
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < bytes.length; i++) {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
@@ -53,54 +53,12 @@ public class HashFunctions {
         return strHashedPassword;
     }
 
-    //Generates public key which will be shared with recipient
-    public static String fnGeneratePublicKey() {
-        String strPublicKey = null;
-        try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            KeyPair keyPair = kpg.genKeyPair();
-            //byte[] privateKey = keyPair.getPrivate().getEncoded();
-            byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
-            strPublicKey = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT);
-        } catch (NoSuchAlgorithmException exAlgo) {
-            exAlgo.printStackTrace();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return strPublicKey;
-    }
-
-    public static String fnEncryptMessage(String strMessage, String strRecipientPublicKey) {
-        String strEncryptedMessage = null;
-        String strCipher1, strCipher2;
-        try {
-            Key encryption_key, integrity_key;
-            //------------Generate Encryption & Integrity Keys------------
-            KeyGenerator kpg = KeyGenerator.getInstance("AES");
-            kpg.init(256, new SecureRandom());
-            encryption_key = kpg.generateKey();
-            integrity_key = kpg.generateKey();
-            //--------------------- End ----------------------
-
-            //-------------- Encrypt Plain Message with AES--------
-            // Encrypt cipher
-            Cipher encryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            encryptCipher.init(Cipher.ENCRYPT_MODE, encryption_key);
-            byte[] byteCipherText = encryptCipher.doFinal(strMessage.getBytes());
-            strCipher1 = Base64.encodeToString(byteCipherText, Base64.DEFAULT);
-            //----------------------- END -------------------------
-
-            //------------------- Hash Cipher text obtained from AES with Key2--------------
-            strCipher2 = getSHA512SecurePWD(strCipher1, integrity_key.toString());
-            //------------------------------ END ----------------------------------------
-
-            //
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return strEncryptedMessage;
+    public static byte[] fnGetHmacSHA256(byte[] byteCipherText, SecretKey hashKey)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        byte[] byteHashKey = hashKey.getEncoded();
+        Mac sha256_HMAC = Mac.getInstance(EncryptionConfiguration.HASH_ALGORITHM);
+        SecretKeySpec sk = new SecretKeySpec(byteHashKey, EncryptionConfiguration.HASH_ALGORITHM);
+        sha256_HMAC.init(sk);
+        return sha256_HMAC.doFinal(byteCipherText);
     }
 }

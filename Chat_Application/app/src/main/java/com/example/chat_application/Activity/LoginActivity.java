@@ -1,4 +1,4 @@
-package com.example.chat_application;
+package com.example.chat_application.Activity;
 
 
 import android.app.ProgressDialog;
@@ -11,22 +11,25 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.example.chat_application.BackgroundService.MessageService;
+import com.example.chat_application.CommonUtility.EncryptionUtility;
 import com.example.chat_application.CommonUtility.HashFunctions;
+import com.example.chat_application.CommonUtility.PreferenceManager;
 import com.example.chat_application.CommonUtility.RetroBuilder;
-import com.example.chat_application.Interface.ChatServerRest;
+import com.example.chat_application.Model.PreferenceKeys;
 import com.example.chat_application.Model.User;
+import com.example.chat_application.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.*;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * Created by brin pereira on 01/04/2017.
@@ -47,6 +50,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //Move to mainactivity after JWT authentication
+        PreferenceManager.init(getApplicationContext());
+
         btnsub1 = (Button) findViewById(R.id.button2); // register button
         btnsub2 = (Button) findViewById(R.id.button3); // login button
         edtPnumber = (EditText) findViewById(R.id.edtLUsername);
@@ -141,7 +148,9 @@ public class LoginActivity extends AppCompatActivity {
                                 if (serverResp.has("error")) {
                                     Toast.makeText(getApplicationContext(), serverResp.getString("error"), Toast.LENGTH_LONG).show();
                                 } else {
-                                    Intent i = new Intent(getApplicationContext(), QRCodeREaderActivity.class); //ScreenActivity.class);
+                                    //String strID = serverResp.getString("ID");
+                                    //PreferenceManager.save(PreferenceKeys.USER_ID, Integer.parseInt(serverResp.getString("ID"))); //Save User ID
+                                    Intent i = new Intent(getApplicationContext(), QRCodeREaderActivity.class);
                                     startActivity(i);
                                 }
                             } catch (Exception ex) {

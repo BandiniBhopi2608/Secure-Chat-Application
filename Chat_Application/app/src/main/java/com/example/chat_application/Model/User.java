@@ -3,12 +3,16 @@ package com.example.chat_application.Model;
 import java.io.Serializable;
 import java.security.PrivateKey;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by BANDINI on 22-04-2017.
  */
 
-public class User implements Serializable {
+public class User extends RealmObject implements Serializable{
     //private  String UserName;
+    @PrimaryKey
     private int ID;
     private String FirstName;
     private String LastName;
@@ -20,6 +24,8 @@ public class User implements Serializable {
     private String Tag;
     private String Challenge;
     private String Salt;
+    private String PublicKey;
+    private String token;
 
     public int getID() {
         return ID;
@@ -116,5 +122,21 @@ public class User implements Serializable {
 
     public void setSalt(String salt) {
         Salt = salt;
+    }
+
+    public String getPublicKey() {
+        return PublicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        PublicKey = publicKey;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

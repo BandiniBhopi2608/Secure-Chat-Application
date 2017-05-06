@@ -69,6 +69,15 @@ CREATE TABLE Challenge(
 	PhoneNumber VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
 	ChlngTimeStamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
+
+CREATE TABLE `securechat`.`message` ( 
+`ID` INT NOT NULL AUTO_INCREMENT , 
+`From` INT NOT NULL , `To` INT NOT NULL , 
+`Message` VARCHAR(10000) NOT NULL , 
+`Status` TINYINT NOT NULL DEFAULT '1' , 
+`SendOn` DATETIME NULL DEFAULT CURRENT_TIMESTAMP , 
+PRIMARY KEY (`ID`)
+) ENGINE = MyISAM
 --------------------------------------------------XXX----------------------------------------
 
 ---------------------------- Adding Constraints on tables -----------------------------------
