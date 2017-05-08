@@ -18,6 +18,7 @@ import com.example.chat_application.CommonUtility.EncryptionUtility;
 import com.example.chat_application.CommonUtility.PreferenceManager;
 import com.example.chat_application.CommonUtility.RetroBuilder;
 import com.example.chat_application.CommonUtility.ShowErrorMessage;
+import com.example.chat_application.CommonUtility.UserToUserAuth;
 import com.example.chat_application.Model.Message;
 import com.example.chat_application.Model.PreferenceKeys;
 import com.example.chat_application.Model.User;
@@ -43,6 +44,7 @@ public class ChatActivity extends AppCompatActivity {
     private ListView listView;
     private BroadcastReceiver receiver;
     String strReceiverPublicKey;
+    String strSelfDSPrivateKey;
     private EditText edtMessage;
     private Button btnSendMessage;
     private boolean isRegistered;
@@ -99,6 +101,7 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(objChatUser.getFirstName());
 
         strReceiverPublicKey = objChatUser.getPublicKey();
+        strSelfDSPrivateKey = PreferenceManager.getString(PreferenceKeys.DS_PRIVATE_KEY);
 
         btnSendMessage = (Button) findViewById(R.id.button_send_message);
         edtMessage = (EditText) findViewById(R.id.edittext_message);
@@ -115,6 +118,8 @@ public class ChatActivity extends AppCompatActivity {
                     objMessage.setTo(intRecieverId);
                     try {
                         objMessage.setMessage(objEncryption.fnEncryptMessage(strMessage, strReceiverPublicKey));
+                        //Digitally sign the message for User to User authentication
+                        UserToUserAuth.fnSign(strSelfDSPrivateKey,objMessage);
                     } catch (Exception ex) {
                         ShowErrorMessage.ShowError(ChatActivity.this, "ENC1 : Error occurred while sending message.");
                         return;

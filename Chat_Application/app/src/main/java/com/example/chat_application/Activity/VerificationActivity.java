@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.example.chat_application.CommonUtility.EncryptionUtility;
 import com.example.chat_application.CommonUtility.PreferenceManager;
 import com.example.chat_application.CommonUtility.RetroBuilder;
+import com.example.chat_application.CommonUtility.UserToUserAuth;
 import com.example.chat_application.Model.PreferenceKeys;
 import com.example.chat_application.Model.User;
 import com.example.chat_application.R;
@@ -65,7 +66,7 @@ public class VerificationActivity extends AppCompatActivity {
                     pDialog.show();
                     ValidateUser();
                     pDialog.dismiss();
-                    finish();
+                    //finish();
                 }
             }
         });
@@ -96,12 +97,16 @@ public class VerificationActivity extends AppCompatActivity {
                                 }
                             } else { //Verification Successful.
                                 PreferenceManager.save(PreferenceKeys.USER_ID, Integer.parseInt(serverResp.getString("ID"))); //Save User ID
-                                //PreferenceManager.save(PreferenceKeys.JWT, serverResp.getString("token")); //Save JWT
+                                PreferenceManager.save(PreferenceKeys.JWT, serverResp.getString("token")); //Save JWT
                                 //Generate Private and Public Key and Save
                                 List<String> lstKeys = EncryptionUtility.fnGeneratePublicPrivateKey();
-                                if(lstKeys.size() == 2) {
+                                //Generate Digital Signature Public and Private Keys
+                                List<String> lstDSKeys = UserToUserAuth.fnGenerateDSKeys();
+                                if(lstKeys.size() == 2 && lstDSKeys.size() == 2) {
                                     PreferenceManager.save(PreferenceKeys.PUBLIC_KEY, lstKeys.get(0));
                                     PreferenceManager.save(PreferenceKeys.PRIVATE_KEY, lstKeys.get(1));
+                                    PreferenceManager.save(PreferenceKeys.DS_PUBLIC_KEY, lstDSKeys.get(0));
+                                    PreferenceManager.save(PreferenceKeys.DS_PRIVATE_KEY, lstDSKeys.get(1));
                                     Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                                     startActivity(i);
                                 }

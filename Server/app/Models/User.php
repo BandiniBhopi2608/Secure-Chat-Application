@@ -7,7 +7,10 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Authenticatable;
 use Reliese\Database\Eloquent\Model as Eloquent;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
 /**
  * Class User
@@ -28,9 +31,11 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  *
  * @package App\Models
  */
-class User extends Eloquent
+class User extends Eloquent implements AuthenticatableContract
 {
-	protected $table = 'user';
+	use Authenticatable;
+	
+	protected $table = 'User';
 	protected $primaryKey = 'ID';
 	public $timestamps = false;
 
@@ -48,7 +53,9 @@ class User extends Eloquent
 	];
 
 	protected $fillable = [
-		'UserName',
+		//'UserName',
+		'FirstName',
+		'LastName',
 		'EncryptedPassword',
 		'Country',
 		'PhoneNumber',
@@ -63,6 +70,8 @@ class User extends Eloquent
 	
 	protected $hidden = [
 		'Salt',
-		'EncryptedPassword'
+		'EncryptedPassword',
+		'VerificationCode',
+		'IsVerified'
 	];
 }

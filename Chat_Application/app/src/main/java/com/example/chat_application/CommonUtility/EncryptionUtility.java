@@ -78,6 +78,7 @@ public class EncryptionUtility {
             byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
             lstKeys.add(0,Base64.encodeToString(publicKeyBytes, Base64.DEFAULT));
             lstKeys.add(1,Base64.encodeToString(privateKeyBytes, Base64.DEFAULT));
+
         } catch (NoSuchAlgorithmException exAlgo) {
             exAlgo.printStackTrace();
         } catch (Exception ex) {

@@ -17,4 +17,6 @@ public class EncryptionConfiguration {
     public static final String ENCRYPTION_PADDING = "NoPadding";
     public static final String HASH_ALGORITHM = "HmacSHA256";
     public static final String QR_CODE_SEPERATOR = "###";
+    public static final int DSA_KEY_SIZE = 512;
+    public static final String DIGITAL_SIGNATURE_ALGORITHM = "DSA";
 }

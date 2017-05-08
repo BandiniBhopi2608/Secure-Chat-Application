@@ -17,6 +17,7 @@ public class Message extends RealmObject {
     private int Type; //To differentiate between single and group chat
     private String SendOn;
     private String LastReceivedOn;
+    private String Signature;
     public static final String UPDATE_MESSAGES = "UPDATE_MESSAGES";
 
     public int getID() {
@@ -73,5 +74,13 @@ public class Message extends RealmObject {
 
     public void setTo(int to) {
         To = to;
+    }
+
+    public String getUserSignature() {
+        return Signature;
+    }
+
+    public void setUserSignature(String userSignature) {
+        Signature = userSignature;
     }
 }

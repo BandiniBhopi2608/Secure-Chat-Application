@@ -37,6 +37,8 @@ public class QRCodeGeneratorActivity extends AppCompatActivity {
         try {
             String strQRCode = PreferenceManager.getString(PreferenceKeys.PUBLIC_KEY)
                     + EncryptionConfiguration.QR_CODE_SEPERATOR
+                    + PreferenceManager.getString(PreferenceKeys.DS_PUBLIC_KEY)
+                    + EncryptionConfiguration.QR_CODE_SEPERATOR
                     + Integer.toString(PreferenceManager.getInt(PreferenceKeys.USER_ID));
             if (strQRCode != null) {
                 BitMatrix bitMatrix = null;

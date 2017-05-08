@@ -12,6 +12,7 @@ import com.example.chat_application.CommonUtility.EncryptionUtility;
 import com.example.chat_application.CommonUtility.PreferenceManager;
 import com.example.chat_application.CommonUtility.RetroBuilder;
 import com.example.chat_application.CommonUtility.ShowErrorMessage;
+import com.example.chat_application.CommonUtility.UserToUserAuth;
 import com.example.chat_application.Model.Message;
 import com.example.chat_application.Model.PreferenceKeys;
 import com.example.chat_application.Model.User;
@@ -47,7 +48,7 @@ public class MessageService extends IntentService {
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            Log.d("Inside msg service","inside");
+            Log.d("Inside msg service", "inside");
             intMyUserId = PreferenceManager.getInt(PreferenceKeys.USER_ID);
             RetroBuilder.ConnectToWebService().getMessages(intMyUserId, intMsgLastestID).enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -85,9 +86,8 @@ public class MessageService extends IntentService {
                         });
                         try {
                             handler.postDelayed(runnableCode, intInterval);
-                        }
-                        catch (Exception ex) {
-                            ShowErrorMessage.ShowError(getApplicationContext()," Handler PostDelayedException Error : " + ex.toString());
+                        } catch (Exception ex) {
+                            ShowErrorMessage.ShowError(getApplicationContext(), " Handler PostDelayedException Error : " + ex.toString());
                         }
                     } else {
                         try {
@@ -109,29 +109,41 @@ public class MessageService extends IntentService {
     private void fnDecryptAndSaveMessage(JSONObject singleMessage, Realm realm) throws JSONException {
         //JSONObject innerMessage = new JSONObject(singleMessage.getString("message"));
         String strEncryptedMsg = singleMessage.getString("Message");
+        String strSignature = singleMessage.getString("Signature");
         int intFrom = singleMessage.getInt("From");
         intMsgLastestID = singleMessage.getInt("ID");
         User objUser = realm.where(User.class).equalTo("ID", intFrom).findFirst();
 
         String strPlainMessage = null;
+        boolean IsVerified = false;
+
         try {
-            strPlainMessage = EncryptionUtility.fnDecryptMessage(strEncryptedMsg, PreferenceManager.getString(PreferenceKeys.PRIVATE_KEY));
+            IsVerified = UserToUserAuth.fnVerify(objUser.getDSPublicKey(), strSignature, strEncryptedMsg);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        if (IsVerified) {
+            try {
+                strPlainMessage = EncryptionUtility.fnDecryptMessage(strEncryptedMsg, PreferenceManager.getString(PreferenceKeys.PRIVATE_KEY));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 
-        if (strPlainMessage != null) {//Decryption is Successful
+            if (strPlainMessage != null) {//Decryption is Successful
 
-            Message objMessage = new Message();
-            objMessage.setID(intMsgLastestID);
-            objMessage.setFrom(singleMessage.getInt("From"));
-            objMessage.setTo(intMyUserId);
-            objMessage.setMessage(strPlainMessage);
-            objMessage.setSendOn(singleMessage.getString("SendOn"));
-            realm.copyToRealmOrUpdate(objMessage);
-            sendBroadcast(new Intent(Message.UPDATE_MESSAGES));
+                Message objMessage = new Message();
+                objMessage.setID(intMsgLastestID);
+                objMessage.setFrom(singleMessage.getInt("From"));
+                objMessage.setTo(intMyUserId);
+                objMessage.setMessage(strPlainMessage);
+                objMessage.setSendOn(singleMessage.getString("SendOn"));
+                realm.copyToRealmOrUpdate(objMessage);
+                sendBroadcast(new Intent(Message.UPDATE_MESSAGES));
+            } else {
+                Log.e("SecureChat", "Couldn't decrypt message");
+            }
         } else {
-            Log.e("SecureChat", "Couldn't decrypt message");
+            ShowErrorMessage.ShowError(getApplicationContext(), "User to User authentication failed.");
         }
     }
 

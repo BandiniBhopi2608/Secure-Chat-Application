@@ -10,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by BANDINI on 22-04-2017.
  */
 
-public class User extends RealmObject implements Serializable{
+public class User extends RealmObject implements Serializable {
     //private  String UserName;
     @PrimaryKey
     private int ID;
@@ -25,6 +25,7 @@ public class User extends RealmObject implements Serializable{
     private String Challenge;
     private String Salt;
     private String PublicKey;
+    private String DSPublicKey;
     private String token;
 
     public int getID() {
@@ -138,5 +139,13 @@ public class User extends RealmObject implements Serializable{
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getDSPublicKey() {
+        return DSPublicKey;
+    }
+
+    public void setDSPublicKey(String DSPublicKey) {
+        this.DSPublicKey = DSPublicKey;
     }
 }

@@ -1,8 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
-
-//use PHPMailer;
+use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Mail;
 use App\Mail\SendVerificationCode;
 use App\Models\User;
@@ -15,15 +14,37 @@ class UserController extends Controller
     public function test(){
 		return "Success";
 	}
-	
-	public function getUser($id) {		
-		$user = User::find($id);
-		if(empty($user)) {
-			$error = ['error' => 'User Not Found', 'code' => '1'];
-			return response()->json($error);
+	/*Response :
+	Error Code 1: Sender ID Missing
+	Error Code 2: Sender ID is either invaid or not verified
+	Error Code 3: Receiver ID is either invaid or not verified
+	*/
+	public function getUser(Request $request, $id) {
+		//JWTAuth::parseToken()->authenticate();
+		
+		$input = $request->all()['nameValuePairs'];
+		$validationRules = [ 'SenderID' => 'required'];
+		$validator1 = Validator::make($input, $validationRules);
+		if ($validator1->fails()) {	
+			$errors = ['error' => 'Sender ID missing', 'code' => '1'];		
+			return response()->json($errors);
 		}
 		else {
-			return response()->json($user);
+			$sender = User::find($input['SenderID']);
+			if(empty($sender) || $sender->IsVerified == false) {
+				$error = ['error' => 'Sender ID is either invaid or not verified', 'code' => '2'];
+				return response()->json($error);
+			}
+			else {
+				$receiver = User::find($id);
+				if(empty($receiver) || $receiver->IsVerified == false) {
+				$error = ['error' => 'Receiver ID is either invaid or not verified', 'code' => '3'];
+				return response()->json($error);
+				}
+				else {
+					return response()->json($receiver);
+				}
+			}
 		}
 	}
 	
@@ -31,30 +52,32 @@ class UserController extends Controller
 	public function login(Request $request, $requestNo) {
 		$input = $request->all();
 		if($requestNo == 1) {
-			$validationRules = ['PhoneNumber' => 'required|numeric|unique:User'];
+			$validationRules = ['PhoneNumber' => 'required|numeric'];
 			$errorMessages = [
 				'PhoneNumber.required' => ' The Phone Number field is required.',
-				'PhoneNumber.numeric' => ' The Phone Number should contain only numbers.',
-				'PhoneNumber.unique' => ' The Phone Number should be unique.',
+				'PhoneNumber.numeric' => ' The Phone Number should contain only numbers.'
 			];
 			$validator = Validator::make($input, $validationRules, $errorMessages);
 			if ($validator->fails()) {			
 				return response()->json($validator->errors());
 			}
 			else {
-				$user = User::where('PhoneNumber',$input['PhoneNumber']).get();
+				$user = User::where('PhoneNumber',$input['PhoneNumber'])->first();
 				if(empty($user)) {
 					$error = ['error' => 'PhoneNumber Not Found', 'code' => '1'];
 					return response()->json($error);
 				}
 				else {
-					//In second phase consider timestamp
-					$challenge = Challenge::firstOrNew(['PhoneNumber' => $input['PhoneNumber']]);
-					$challenge->Challenge = bin2hex(random_bytes(32));
-					$challenge->save();					
-					$response = ['Salt' => $user->Salt
-								,'Challenge' => $challenge->Challenge];
-					return response()->json($response);
+					if($user->IsVerified == true) {						
+						$challenge = bin2hex(random_bytes(32));
+						$response = ['Salt' => $user->Salt
+									,'Challenge' => $challenge]; //$challenge->Challenge];
+						return response()->json($response);
+					}
+					else {
+						$error = ['error' => 'User is not verified.', 'code' => '2'];
+						return response()->json($error);
+					}
 				}
 			}
 		}
@@ -74,11 +97,8 @@ class UserController extends Controller
 				return response()->json($validator->errors());
 			}
 			else {
-				$user = User::where('PhoneNumber',$input['PhoneNumber']).get();
-				$challenge = Challenge::where(['Challenge' => $input['Challenge'], 
-											   'PhoneNumber' => $input['PhoneNumber']])
-									    .get();
-										
+				$user = User::where('PhoneNumber',$input['PhoneNumber'])->first();				
+				$challenge = $input['Challenge'];			
 				if(empty($user)) {
 					$error = ['error' => 'PhoneNumber Not Found', 'code' => '1'];
 					return response()->json($error);
@@ -89,7 +109,7 @@ class UserController extends Controller
 				}
 				else {
 					$tag = $input['Tag'];
-					$mytag = hash_hmac('sha512', $user->EncryptedPassword, $challenge->Challenge);
+					$mytag = hash_hmac('sha512', $user->EncryptedPassword, $challenge); //->Challenge);
 					if(strcmp($tag, $mytag) === 0) {
 						return response()->json($user);						
 					}
@@ -102,70 +122,124 @@ class UserController extends Controller
 		}
 	}
 	
+	/*
+	Response :
+	Error Code 1 : Validation Failed
+	Error Code 2 : Phone number is not unique. That means User already exits
+	Error Code 3 : EmailID is not unique
+	Error Code 4 : Could not send Verification Email. Therefore Registration fails.
+	*/
 	public function register(Request $request)	{		
 		$input = $request->all();		
 		$validationRules = [
-			'UserName' => 'required|max:50',
+			'FirstName' => 'required|max:50',
+			'LastName' => 'required|max:50',
 			'Password' => 'required|max:80',
 			'Country' => 'required|numeric',
-			'PhoneNumber' => 'required|numeric|unique:User',
-			'EmailID' => 'required|email|unique:User'
-		];		
-		$errorMessages = [
-			'UserName.required' => ' The User Name field is required.',
-			'UserName.max' => ' The User Name may not be greater than 50 characters.',
-			'Password.required' => ' The Password field is required.',
-			'Password.max' => ' The User Name may not be greater than 80 characters.',
-			'Country.required' => ' The Country field is required.',
-			'Country.numeric' => ' The Country Code should be numeric.',
-			'PhoneNumber.required' => ' The Phone Number field is required.',
-			'PhoneNumber.numeric' => ' The Phone Number should contain only numbers.',
-			'PhoneNumber.unique' => ' The Phone Number should be unique.',
-			'EmailID.required' => ' The EmailID field is required.',
-			'EmailID.unique' => ' The EmailID should be unique.',
-		];		
-		$validator = Validator::make($input, $validationRules, $errorMessages);		
-		if ($validator->fails()) {			
-			return response()->json($validator->errors());
+			'PhoneNumber' => 'required|numeric',
+			'EmailID' => 'required|email'
+		];
+		
+		$validator1 = Validator::make($input, $validationRules);		
+		if ($validator1->fails()) {	
+			$errors = ['error' => 'Validation Failed', 'code' => '1'];		
+			return response()->json($errors);
+		}
+		$emailRule = [
+			'EmailID' => 'unique:User'
+		];
+		$validator2 = Validator::make($input, $emailRule);		
+		if ($validator2->fails()) {	
+			$errors = ['error' => 'EmailID is not unique', 'code' => '3'];		
+			return response()->json($errors);
 		}		
-		$user = User::firstOrNew(['PhoneNumber' => $input['PhoneNumber']]); //Check user exists or not based on unique id column instead of Phone number
+		//Check user exists or not based on Phone number
+		$user = User::firstOrNew(['PhoneNumber' => $input['PhoneNumber'], 'IsActive'=> true, 'IsDeleted'=>false]); 
 		if ($user->exists) {
 			// user already exists
-			$error = ['error' => 'User already exists in the system', 'code' => '1'];
+			$error = ['error' => 'User already exists in the system', 'code' => '2'];
+			$errors['ID'] = $user->ID;
+			$errors['PhoneNumber'] = $input['PhoneNumber'];
 			return response()->json($error);
-		} else {
-			// user created from 'new'; does not exist in database.
-			$user->UserName 			= $input['UserName'];
-			$user->Salt 				= bin2hex(random_bytes(32));//$hash["salt"]; // salt
-			$password 					= $input['Password'];
-			$user->EncryptedPassword 	= password_hash($user->Salt.$password, PASSWORD_BCRYPT); //$hash["encrypted"]; // encrypted password
-			$user->Country				= $input['Country'];
-			$user->PhoneNumber			= $input['PhoneNumber'];
-			$user->EmailID				= $input['EmailID'];
-			$user->save();
-			return response()->json($user);
 		}
-		
-		
-		//return "Validation Sucessful";
+		else {
+			$activationcode = random_int(100000, 999999);
+			if($this->sendemail($activationcode, $input['FirstName']. ' ' . $input['LastName'], $input['EmailID'])) {
+				$user->FirstName			= $input['FirstName'];
+				$user->LastName				= $input['LastName'];
+				//$user->Salt 				= bin2hex(random_bytes(32));
+				$user->Salt 				= $input['Salt'];
+				$password 					= $input['Password'];
+				$user->EncryptedPassword 	= password_hash($user->Salt.$password, PASSWORD_BCRYPT);
+				$user->Country				= $input['Country'];
+				$user->PhoneNumber			= $input['PhoneNumber'];
+				$user->EmailID				= $input['EmailID'];
+				$user->IsActive				= false;
+				$user->VerificationCode		= $activationcode;
+				$user->IsVerified			= false;
+				$user->save();
+				return response()->json($user);
+			
+			}
+			else {
+				$errors = ['error' => 'Error occurred while connecting to Email Server. Check your email or contact administrator', 'code' => '4'];		
+				return response()->json($errors);
+			}
+			
+		}
 	}
 	
-	public function sendemail(Request $request)
+	public function sendemail($activationcode, $username, $email )
+	{		
+		$data = array( 'username' => $username, 'activationcode' => $activationcode );
+		try {
+			Mail::send('emails.VerificationMail', $data, function($message) use ($email, $username) {						
+				$message->to($email, $username)
+					->subject('Your Activation Code');
+			});
+			return true;
+		}
+		catch(Exception $ex) {
+				return false;
+		}
+	}
+	
+	/*
+	Response :
+	Error Code 5: User not found in database.
+	Error Code 6: Verification Code does not match.
+	*/
+	public function verifyuser(Request $request)
 	{
 		$input = $request->all();
-		$activationcode = random_int(100000, 999999);
-		$username = $input['UserName'];
-		$email = $input['EmailID'];
-		$data = array( 'username' => $username, 'activationcode' => $activationcode );
-		Mail::send('emails.VerificationMail', $data, function($message) use ($email, $username) {						
-            $message->to($email, $username)
-                ->subject('Your Activation Code');
-        });
-		dd('Mail send successfully');
-		/*
-		$mail = 'bandini.bhopi@gmail.com';
-		Mail::to($mail)->send(new SendVerificationCode);
-		dd('Mail send successfully');
-		*/
+		$user = User::find($input['ID']);
+		if(empty($user)) {
+			$error = ['error' => 'User Not Found', 'code' => '5'];
+			return response()->json($error);
+		}
+		else {
+			if(strcmp($user->VerificationCode, $input['VerificationCode']) == 0) {
+				$user->VerificationCode = NULL;
+				$user->IsVerified		= true;
+				$user->IsActive			= true;				
+				$user->save();
+				
+				//Add Json token
+				$token = JWTAuth::fromUser($user);
+				$user->token = compact('token')['token'];
+				
+				return response()->json($user);
+			}
+			else {
+				$error = ['error' => 'Verification Code does not match', 'code' => '6'];
+				return response()->json($error);
+			}
+		}
+	}
+	
+	// For Testing Purpose
+	public function getAuthenticatedUser(Request $request)
+	{
+		JWTAuth::parseToken()->authenticate();
 	}
 }

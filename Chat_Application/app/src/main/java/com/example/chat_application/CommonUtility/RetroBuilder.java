@@ -1,7 +1,17 @@
 package com.example.chat_application.CommonUtility;
 
 import com.example.chat_application.Interface.ChatServerRest;
+import com.example.chat_application.Model.PreferenceKeys;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
+
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -12,12 +22,36 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetroBuilder {
 
     private static final String strServerURL = "https://cryptoninja.me/api/";
-    public  static ChatServerRest ConnectToWebService()
-    {
-        Retrofit retrofit = new Retrofit.Builder()
+
+    public static ChatServerRest ConnectToWebService() {
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(logging);
+
+        // If you have JWT add it to the header
+
+        if (PreferenceManager.contains(PreferenceKeys.JWT)) {
+            httpClient.addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request original = chain.request();
+                    Request request = original.newBuilder().addHeader("Authorization", "Bearer " + PreferenceManager.getString(PreferenceKeys.JWT))
+                            .method(original.method(), original.body())
+                            .build();
+
+                    return chain.proceed(request);
+                }
+            });
+        }
+
+        Gson gson = new GsonBuilder().setLenient().create();
+        Retrofit.Builder retrofitbuilder = new Retrofit.Builder()
                 .baseUrl(strServerURL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+                .addConverterFactory(GsonConverterFactory.create(gson));
+        Retrofit retrofit = retrofitbuilder.client(httpClient.build()).build();
 
         ChatServerRest objRestService = retrofit.create(ChatServerRest.class);
         return objRestService;

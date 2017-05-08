@@ -47,14 +47,14 @@ public class QRCodeREaderActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    // Add Friend
-                    IntentIntegrator integrator = new IntentIntegrator(QRCodeREaderActivity.this);
-                    integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
-                    integrator.setPrompt("Scan Friend's Publick Key");
-                    integrator.setCameraId(0);
-                    integrator.setBeepEnabled(false);
-                    integrator.setBarcodeImageEnabled(false);
-                    integrator.initiateScan();
+                // Add Friend
+                IntentIntegrator integrator = new IntentIntegrator(QRCodeREaderActivity.this);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+                integrator.setPrompt("Scan Friend's Publick Key");
+                integrator.setCameraId(0);
+                integrator.setBeepEnabled(false);
+                integrator.setBarcodeImageEnabled(false);
+                integrator.initiateScan();
             }
         });
 
@@ -100,7 +100,7 @@ public class QRCodeREaderActivity extends AppCompatActivity {
                 //PreferenceManager.save(PreferenceKeys.PublicKey, result.getContents());
                 String strFriendPublicKey = result.getContents();
                 final String[] strFrinedInfo = strFriendPublicKey.split(EncryptionConfiguration.QR_CODE_SEPERATOR);
-                if (strFrinedInfo != null && strFrinedInfo.length == 2) {
+                if (strFrinedInfo != null && strFrinedInfo.length == 3) {
                     JSONObject json = new JSONObject();
                     try {
                         json.put("SenderID", Integer.toString(PreferenceManager.getInt(PreferenceKeys.USER_ID)));
@@ -108,26 +108,15 @@ public class QRCodeREaderActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    RetroBuilder.ConnectToWebService().getUser(json, strFrinedInfo[1]).enqueue(new Callback<User>() {
+                    RetroBuilder.ConnectToWebService().getUser(json, strFrinedInfo[2]).enqueue(new Callback<User>() {
                         @Override
                         public void onResponse(Call<User> call, Response<User> response) {
                             if (response.isSuccessful()) {
                                 final User objReceiver = response.body();
                                 objReceiver.setPublicKey(strFrinedInfo[0]);
+                                objReceiver.setDSPublicKey(strFrinedInfo[1]);
                                 objFriendList.addUser(objReceiver);
-                                /*
-                                User objReceiver = response.body();
-                                objReceiver.setPublicKey(strFrinedInfo[0]);
-
-                                Intent intent = new Intent(QRCodeREaderActivity.this, FriendList.class);
-                                intent.putExtra("UserObject", objReceiver);
-                                //startActivity(intent);
-                                setResult(200,intent);
-                                //objFriendList.addUser(objReceiver);
-                                */
-                            }
-                            else
-                            {
+                            } else {
                                 try {
                                     Toast.makeText(getApplicationContext(), "Error: " + response.errorBody().string() + "Please try again or contact administrator", Toast.LENGTH_LONG).show();
                                 } catch (IOException e) {
