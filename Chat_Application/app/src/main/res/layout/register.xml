@@ -17,13 +17,13 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="48dp"
-            android:background="#13b586"
+            android:background="#df5354"
             android:orientation="horizontal"
             android:layout_alignParentTop="true">
 
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Registration form"
+                android:text="Registration"
                 android:textColor="#e8e8e7"
                 android:layout_marginLeft="25dp"
                 android:textSize="20dp"
@@ -38,8 +38,9 @@
             android:background="@drawable/background">
 
             <EditText android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="First Name"
+                android:textColor="#bfbcbc"
                 android:inputType="textCapWords"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
@@ -48,9 +49,10 @@
                 android:id="@+id/edtfirstname"/>
 
             <EditText android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:inputType="textCapWords"
                 android:hint="Last Name"
+                android:textColor="#bfbcbc"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
                 android:layout_marginTop="30dp"
@@ -58,18 +60,9 @@
                 android:id="@+id/edtlastname"/>
 
             <EditText android:layout_width="fill_parent"
-                android:layout_height="30dp"
-                android:inputType="text"
-                android:hint="Username "
-                android:background="#f3f3f3"
-                android:paddingLeft="5dp"
-                android:layout_marginTop="30dp"
-                android:ems="10"
-                android:id="@+id/edtUsername"/>
-
-            <EditText android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="Enter password"
+                android:textColor="#bfbcbc"
                 android:inputType="textPassword"
                 android:background="#f3f3f3"
                 android:paddingLeft="5dp"
@@ -78,10 +71,11 @@
                 android:id="@+id/edtPass"/>
 
             <EditText android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="Confirm password"
                 android:inputType="textPassword"
                 android:background="#f3f3f3"
+                android:textColor="#bfbcbc"
                 android:paddingLeft="5dp"
                 android:layout_marginTop="15dp"
                 android:ems="10"
@@ -89,8 +83,9 @@
 
             <EditText
                 android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="Enter country code ( eg. +1 )"
+                android:textColor="#bfbcbc"
                 android:inputType="phone"
                 android:maxLength="3"
                 android:background="#f3f3f3"
@@ -101,8 +96,9 @@
 
             <EditText
                 android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="Enter existing mobile number"
+                android:textColor="#bfbcbc"
                 android:inputType="phone"
                 android:maxLength="10"
                 android:background="#f3f3f3"
@@ -113,8 +109,9 @@
 
             <EditText
                 android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:hint="Enter valid email address"
+                android:textColor="#bfbcbc"
                 android:inputType="textEmailAddress"
                 android:maxLength="50"
                 android:background="#f3f3f3"
@@ -125,12 +122,12 @@
 
 
             <Button android:layout_width="190dp"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
                 android:text="submit"
                 android:textColor="#fff"
-                android:background="@drawable/button"
+                android:background="#df5354"
                 android:id="@+id/button1"/>
 
         </LinearLayout>

@@ -16,12 +16,12 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="50dp"
-            android:background="#2683c2"
+            android:background="#df5354"
             android:orientation="horizontal"
             android:layout_alignParentTop="true">
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chat App"
+                android:text="Secure Chat"
                 android:textColor="#ffffff"
                 android:layout_marginLeft="30dp"
                 android:textSize="18sp"
@@ -49,8 +49,8 @@
                 android:layout_height="50dp"
                 android:hint="Enter verification code"
                 android:inputType="number"
+                android:textColor="#bfbcbc"
                 android:background="#f3f3f3"
-                android:textColor="#000000"
                 android:paddingLeft="5dp"
                 android:layout_marginTop="40dp"
                 android:ems="10"
@@ -63,7 +63,7 @@
                 android:text="Verify"
                 android:textColor="#fff"
                 android:textSize="15dp"
-                android:background="#13b586"
+                android:background="#df5354"
                 android:id="@+id/button4"/>
 
         </LinearLayout>

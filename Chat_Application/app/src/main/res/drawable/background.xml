@@ -10,8 +10,6 @@
                 android:endColor="#e8e8e7"
                 android:angle="270" />
 
-            <corners
-                android:radius="20dp" />
             <padding
                 android:left="10dp"
                 android:top="10dp"

@@ -1,5 +1,6 @@
 package com.example.chat_application.Activity;
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,13 +44,109 @@ public class RegisterActivity extends AppCompatActivity {
         //initialization of all editText
         //For Testing
         edtFirst = (EditText) findViewById(R.id.edtfirstname);
+        edtFirst.setTextColor(Color.BLACK);
+        edtFirst.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+                    if (edtFirst.getText().toString().length() == 0)
+                    {
+                        edtFirst.setError("First name not entered");
+                    }
+
+                }
+            }
+        });
+
         edtLast = (EditText) findViewById(R.id.edtlastname);
-        edtUser = (EditText) findViewById(R.id.edtUsername);
+        edtLast.setTextColor(Color.BLACK);
+        edtLast.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+                    if (edtLast.getText().toString().length() == 0)
+                    {
+                        edtLast.setError("Last name not entered");
+                       }
+
+                }
+            }
+        });
+
         edtPass = (EditText) findViewById(R.id.edtPass);
+        edtPass.setTextColor(Color.BLACK);
+        edtPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+                    if (edtPass.getText().toString().length() == 0) {
+                        edtPass.setError("Password not entered");
+                        }
+
+                    if (edtPass.length() < 8 || edtPass.length() > 20) {
+                        edtPass.setError("Please enter password of length between 8-20");
+                    }
+
+                }
+            }
+        });
+
         edtConfPass = (EditText) findViewById(R.id.edtConfirmPass);
-        edtEmail = (EditText) findViewById(R.id.edtEmail);
+        edtConfPass.setTextColor(Color.BLACK);
+        edtConfPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+                    if (edtConfPass.getText().toString().length() == 0) {
+                        edtConfPass.setError("Please confirm password");
+                       }
+
+                    if (!edtPass.getText().toString().equals(edtConfPass.getText().toString())) {
+                        edtConfPass.setError("Password Not matched");
+                       }
+
+                }
+            }
+        });
+
+
         edtNumber = (EditText) findViewById(R.id.edtNumber);
+        edtNumber.setTextColor(Color.BLACK);
         edtPnumber = (EditText) findViewById(R.id.edtPnumber);
+        edtPnumber.setTextColor(Color.BLACK);
+        edtPnumber.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+
+                    if (edtPnumber.length() < 10 || edtPnumber.length() > 10) {
+                        edtPnumber.setError("Please enter 10 digit mobile number");
+                    }
+                }
+            }
+        });
+
+
+        edtEmail = (EditText) findViewById(R.id.edtEmail);
+        edtEmail.setTextColor(Color.BLACK);
+        edtEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                {
+                    if (!EMAIL_ADDRESS_PATTERN.matcher(edtEmail.getText()).matches()) {
+                        edtEmail.setError("Please enter valid email addresss");
+                    }
+                }
+            }
+        });
+
         //Initialization of Register Button
         btnReg = (Button) findViewById(R.id.button1);
 
@@ -64,58 +161,18 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
-                if (edtFirst.getText().toString().length() == 0) {
-                    edtFirst.setError("First name not entered");
-                    edtFirst.requestFocus();
-                }
-                if (edtLast.getText().toString().length() == 0) {
-                    edtLast.setError("Last name not entered");
-                    edtLast.requestFocus();
-                }
 
-                if (edtUser.getText().toString().length() == 0) {
-                    edtUser.setError("Username is Required");
-                    edtUser.requestFocus();
-                }
-                if (edtPass.getText().toString().length() == 0) {
-                    edtPass.setError("Password not entered");
-                    edtPass.requestFocus();
-                }
 
-                if (edtPass.length() < 8 || edtPass.length() > 20) {
-                    edtPass.setError("Please enter password of length between 8-20");
-                    edtPass.requestFocus();
-                }
 
-                if (edtPass.getText().toString().length() == 0) {
-                    edtConfPass.setError("Please confirm password");
-                    edtConfPass.requestFocus();
-                }
-
-                if (!edtPass.getText().toString().equals(edtConfPass.getText().toString())) {
-                    edtConfPass.setError("Password Not matched");
-                    edtConfPass.requestFocus();
-                }
-
-                if (edtPnumber.length() < 10 || edtPnumber.length() > 10) {
-                    edtPnumber.setError("Please enter 10 digit mobile number");
-                    edtPnumber.requestFocus();
-                }
-
-                if (!EMAIL_ADDRESS_PATTERN.matcher(edtEmail.getText()).matches()) {
-                    edtEmail.setError("Please enter valid email addresss");
-                    edtEmail.requestFocus();
-
-                } else {
                     pDialog.setMessage("Please wait ...");
                     pDialog.show();
                     registerUser();
                     pDialog.dismiss();
                     //Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
                     //startActivity(i);
-                    finish();
+                    //finish();
 
-                }
+
             }
         });
     }

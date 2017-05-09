@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 pDialog.show();
                 loginUser();
                 pDialog.dismiss();
-                finish();
+             //   finish();
             }
         });
 
