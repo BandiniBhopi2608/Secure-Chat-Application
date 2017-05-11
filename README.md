@@ -28,9 +28,9 @@ Technologies used to develop secure chat application:
 Cryptography Profile:
 1. Bcrypt  ( used for hashing password )  
 2. PGP Algorithm 
- 2.1 2048 –bit RSA Public key 
-	AES – 256 for encrypting message.
-  Mode of encryption used is CTR 
-	HMAC SHA – 256 for generating tag
-	RSA  used for encryption of 𝐾_𝑒   𝑎𝑛𝑑 𝐾_𝑖
+3. 2048 –bit RSA Public key
+4. AES – 256 for encrypting message
+5. Mode of encryption used is CTR
+6. HMAC SHA – 256 for generating tag
+7. RSA  used for encryption of 𝐾e 𝑎𝑛𝑑 𝐾i
 
