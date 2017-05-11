@@ -3,6 +3,7 @@ package com.example.chat_application.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,6 +36,9 @@ import retrofit2.Response;
  * Created by brin pereira on 01/04/2017.
  */
 
+//Added by Brin Pereira
+//DESC : Implemented Remote Login functionality. Used BCrypt for hashing password using jBCrypt library.
+//Note: jBCrypt is a java implementation of Blowfish password hashing code.
 public class LoginActivity extends AppCompatActivity {
 
     //Variable Declaration
@@ -51,13 +55,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //Move to mainactivity after JWT authentication
         PreferenceManager.init(getApplicationContext());
 
         btnsub1 = (Button) findViewById(R.id.button2); // register button
         btnsub2 = (Button) findViewById(R.id.button3); // login button
         edtPnumber = (EditText) findViewById(R.id.edtLUsername);
         edtPassword = (EditText) findViewById(R.id.edtLPass);
+        edtPnumber.setTextColor(Color.BLACK);
+        edtPassword.setTextColor(Color.BLACK);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
@@ -86,14 +91,13 @@ public class LoginActivity extends AppCompatActivity {
                 pDialog.show();
                 loginUser();
                 pDialog.dismiss();
-             //   finish();
             }
         });
 
     }
 
     public void loginUser() {
-        //String strSaltedPwd = HashFunctions.getHashValue(edtPassword.getText().toString().trim());
+
         objUser = new User();
         objUser.setPhoneNumber(edtPnumber.getText().toString().trim());
         try {
@@ -148,8 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (serverResp.has("error")) {
                                     Toast.makeText(getApplicationContext(), serverResp.getString("error"), Toast.LENGTH_LONG).show();
                                 } else {
-                                    //String strID = serverResp.getString("ID");
-                                    //PreferenceManager.save(PreferenceKeys.USER_ID, Integer.parseInt(serverResp.getString("ID"))); //Save User ID
+                                    //At server, our calculate tag matches with the tag calculated by server. Therfore login is successful.
                                     Intent i = new Intent(getApplicationContext(), QRCodeREaderActivity.class);
                                     startActivity(i);
                                 }

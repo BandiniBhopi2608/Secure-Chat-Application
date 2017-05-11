@@ -22,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by BANDINI on 23-04-2017.
  */
 
+//This class performs the hash operations.
 public class HashFunctions {
     public static String getHashValue(String strData, String strSalt) {
         String strHashedData = null;

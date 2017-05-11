@@ -43,6 +43,7 @@ import static android.R.attr.data;
  * Created by BANDINI on 29-04-2017.
  */
 
+//This class performs all the encryption and decryption operations.
 public class EncryptionUtility {
 
     //Variable Declaration
@@ -123,11 +124,11 @@ public class EncryptionUtility {
         //-------------------------- Encrypt Plain Message------------------------
         IvParameterSpec iv = fnGenerateIV(intIVBlockSize);
         msgEncryptCipher.init(Cipher.ENCRYPT_MODE, encryption_key, iv);
-        byte[] byteCipherText = msgEncryptCipher.doFinal(strPlainMessage.getBytes()); //-------------> c : cipher text
+        byte[] byteCipherText = msgEncryptCipher.doFinal(strPlainMessage.getBytes());
         //----------------------- END -------------------------
 
         //------------------- Hash Cipher text obtained from AES with integrity_key--------------
-        byte[] byteTag = HashFunctions.fnGetHmacSHA256(byteCipherText, integrity_key); //------------> t : tag
+        byte[] byteTag = HashFunctions.fnGetHmacSHA256(byteCipherText, integrity_key);
         //------------------------------ END ----------------------------------------
 
         //------------------- Concatenate Encryption and Integrity Key ------------------
@@ -239,34 +240,5 @@ public class EncryptionUtility {
 
     private static boolean fnVerifyHMAC(byte[] byteTag, byte[] byteMyTag) {
         return Arrays.equals(byteTag, byteMyTag);
-    }
-
-    //----------------------- Only for testing -----------------------------
-    public static void Writefile()
-    {
-        String path = Environment.getExternalStorageDirectory() + File.separator  + "AppTest";
-        // Create the folder.
-        File folder = new File(path);
-        folder.mkdirs();
-
-        // Create the file.
-        File file = new File(folder, "config.txt");
-
-        try
-        {
-            file.createNewFile();
-            FileOutputStream fOut = new FileOutputStream(file);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append("Test");
-
-            myOutWriter.close();
-
-            fOut.flush();
-            fOut.close();
-        }
-        catch (IOException e)
-        {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Challenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+//Bandini added this controller which handles all user related activities.
 class UserController extends Controller
 {
     public function test(){
@@ -20,7 +21,7 @@ class UserController extends Controller
 	Error Code 3: Receiver ID is either invaid or not verified
 	*/
 	public function getUser(Request $request, $id) {
-		//JWTAuth::parseToken()->authenticate();
+		JWTAuth::parseToken()->authenticate();
 		
 		$input = $request->all()['nameValuePairs'];
 		$validationRules = [ 'SenderID' => 'required'];
@@ -109,7 +110,8 @@ class UserController extends Controller
 				}
 				else {
 					$tag = $input['Tag'];
-					$mytag = hash_hmac('sha512', $user->EncryptedPassword, $challenge); //->Challenge);
+					$mytag = hash_hmac('sha512', $user->EncryptedPassword, $challenge); //Generate tag
+					//compare the tag
 					if(strcmp($tag, $mytag) === 0) {
 						return response()->json($user);						
 					}
@@ -167,7 +169,6 @@ class UserController extends Controller
 			if($this->sendemail($activationcode, $input['FirstName']. ' ' . $input['LastName'], $input['EmailID'])) {
 				$user->FirstName			= $input['FirstName'];
 				$user->LastName				= $input['LastName'];
-				//$user->Salt 				= bin2hex(random_bytes(32));
 				$user->Salt 				= $input['Salt'];
 				$password 					= $input['Password'];
 				$user->EncryptedPassword 	= password_hash($user->Salt.$password, PASSWORD_BCRYPT);

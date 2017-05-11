@@ -14,7 +14,6 @@ public class Message extends RealmObject {
     private int To;
     private int From;
     private String Message;
-    private int Type; //To differentiate between single and group chat
     private String SendOn;
     private String LastReceivedOn;
     private String Signature;
@@ -34,14 +33,6 @@ public class Message extends RealmObject {
 
     public void setMessage(String message) {
         Message = message;
-    }
-
-    public int getType() {
-        return Type;
-    }
-
-    public void setType(int type) {
-        Type = type;
     }
 
     public String getSendOn() {

@@ -35,8 +35,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+//Bandini created this class
+//DESC: This class include functionality of retrieving the message from local database and encrypting the plain message
+// using PGP and send to the Server.
 public class ChatActivity extends AppCompatActivity {
-
+    //Variable Declaration
     private int intRecieverId;
     private int intSenderID;
     private Realm realm;
@@ -51,6 +54,7 @@ public class ChatActivity extends AppCompatActivity {
     private EncryptionUtility objEncryption;
     private Intent msgServiceIntent;
     private Message objMessage = new Message();
+    //----------------------------------END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +80,11 @@ public class ChatActivity extends AppCompatActivity {
             objEncryption = new EncryptionUtility();
         } catch (Exception ex) {
         }
+
         realm = Realm.getDefaultInstance();
         objChatUser = realm.where(User.class).equalTo("ID", intRecieverId).findFirst();
 
+        //Fetch all the message from local database
         RealmQuery<Message> query = realm.where(Message.class).equalTo("From", intRecieverId)
                 .equalTo("To", intSenderID)
                 .or()
@@ -117,9 +123,10 @@ public class ChatActivity extends AppCompatActivity {
                     objMessage.setFrom(intSenderID);
                     objMessage.setTo(intRecieverId);
                     try {
+                        //Encrypt the message using receiver's public key
                         objMessage.setMessage(objEncryption.fnEncryptMessage(strMessage, strReceiverPublicKey));
                         //Digitally sign the message for User to User authentication
-                        UserToUserAuth.fnSign(strSelfDSPrivateKey,objMessage);
+                        UserToUserAuth.fnSign(strSelfDSPrivateKey, objMessage);
                     } catch (Exception ex) {
                         ShowErrorMessage.ShowError(ChatActivity.this, "ENC1 : Error occurred while sending message.");
                         return;
@@ -133,7 +140,6 @@ public class ChatActivity extends AppCompatActivity {
                             public void onResponse(Call<Message> call, final Response<Message> response) {
                                 if (response.isSuccessful()) {
                                     try {
-                                        //objMessage.setMessage(strPlainText);
                                         realm.executeTransaction(new Realm.Transaction() {
 
                                             @Override
@@ -148,7 +154,6 @@ public class ChatActivity extends AppCompatActivity {
                                                 edtMessage.setText("");
                                             }
                                         });
-                                        //getApplicationContext().startService(msgServiceIntent);
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }

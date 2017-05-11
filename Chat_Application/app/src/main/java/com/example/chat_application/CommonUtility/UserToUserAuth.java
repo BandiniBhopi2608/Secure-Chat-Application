@@ -25,8 +25,10 @@ import java.util.List;
  * Created by BANDINI on 05-05-2017.
  */
 
+//DESC: Generates digital signature, verify them
 public class UserToUserAuth {
 
+    //Generate public and private key for generating digital signature.
     public static List<String> fnGenerateDSKeys() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         List<String> lstKeys = new ArrayList<String>();
         KeyPairGenerator pairgen = KeyPairGenerator.getInstance(EncryptionConfiguration.DIGITAL_SIGNATURE_ALGORITHM);
@@ -40,6 +42,7 @@ public class UserToUserAuth {
         return lstKeys;
     }
 
+    //Generate the digital signature and sign the message with own private key
     public static Message fnSign(String strPrivateKey, Message objMessage) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidKeySpecException {
         byte[] decodePrivateKey = Base64.decode(strPrivateKey, Base64.DEFAULT);
         PKCS8EncodedKeySpec pkcs8 = new PKCS8EncodedKeySpec(decodePrivateKey);
@@ -57,6 +60,7 @@ public class UserToUserAuth {
         return objMessage;
     }
 
+    //Verify the sender's signature usign recipient's public key
     public static boolean fnVerify(String strPublicKey, String strSignature, String strMessage) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         boolean IsVerified = false;
         byte[] decodeKey = Base64.decode(strPublicKey, Base64.DEFAULT);

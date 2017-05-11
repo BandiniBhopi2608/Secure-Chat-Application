@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 public class SampleFragmentPagerAdapter extends FragmentPagerAdapter {
-    private String tabTitles[] = new String[]{"Friends"};//, "Groups"};
+    private String tabTitles[] = new String[]{"Friends"};
     private List<Fragment> fragmentList;
 
     public SampleFragmentPagerAdapter(FragmentManager fm, List<Fragment> fragmentList) {

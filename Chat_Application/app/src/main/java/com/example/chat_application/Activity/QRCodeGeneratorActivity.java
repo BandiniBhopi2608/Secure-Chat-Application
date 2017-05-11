@@ -20,10 +20,13 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+//Bandini added this class to generate QR Code to share public key
 public class QRCodeGeneratorActivity extends AppCompatActivity {
 
+    //Variable Declaration
     private ImageView imageView;
     private final static int QRcodeWidth = 1000;
+    //---------------------------------------END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,8 @@ public class QRCodeGeneratorActivity extends AppCompatActivity {
         fnGenerateQRCode();
     }
 
+    //DESC : Generates QR code which used to exchange receiver's RSA public key for encryption, DSA public key
+    // of the receiver to verify the source of the message and recipients user ID.
     private void fnGenerateQRCode() {
         try {
             String strQRCode = PreferenceManager.getString(PreferenceKeys.PUBLIC_KEY)

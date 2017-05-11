@@ -1,6 +1,7 @@
 package com.example.chat_application.Activity;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -34,8 +35,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static java.lang.System.in;
+
+/*
+Bandini added this class to scan the QR code and add the user in friend list to do chat
+*/
 public class QRCodeREaderActivity extends AppCompatActivity {
-    //private Button scan_btn;
+    //Variable Declaration
     private FriendList objFriendList;
 
     @Override
@@ -47,7 +53,7 @@ public class QRCodeREaderActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Add Friend
+                // Start scanning of QR code
                 IntentIntegrator integrator = new IntentIntegrator(QRCodeREaderActivity.this);
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
                 integrator.setPrompt("Scan Friend's Publick Key");
@@ -64,7 +70,6 @@ public class QRCodeREaderActivity extends AppCompatActivity {
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(new SampleFragmentPagerAdapter(getSupportFragmentManager(), fragmentList));
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -87,19 +92,14 @@ public class QRCodeREaderActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            return;
-        }*/
+
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() == null) {
                 Toast.makeText(this, "You cancelled the scanning", Toast.LENGTH_LONG).show();
             } else {
-                //Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
-                //PreferenceManager.save(PreferenceKeys.PublicKey, result.getContents());
-                String strFriendPublicKey = result.getContents();
-                final String[] strFrinedInfo = strFriendPublicKey.split(EncryptionConfiguration.QR_CODE_SEPERATOR);
+                String strFriendPublicKey = result.getContents(); //This contains friend's RSA public key, DSA public key and his/her User ID
+                final String[] strFrinedInfo = strFriendPublicKey.split(EncryptionConfiguration.QR_CODE_SEPERATOR);//Separate above mentioned three fields
                 if (strFrinedInfo != null && strFrinedInfo.length == 3) {
                     JSONObject json = new JSONObject();
                     try {
@@ -108,6 +108,7 @@ public class QRCodeREaderActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
+                    //Send request to server to get receiver's data based on his/her User ID
                     RetroBuilder.ConnectToWebService().getUser(json, strFrinedInfo[2]).enqueue(new Callback<User>() {
                         @Override
                         public void onResponse(Call<User> call, Response<User> response) {

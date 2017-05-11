@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
  * Created by BANDINI on 26-04-2017.
  */
 
+//Performs local database operations.
 public class PreferenceManager {
 
     private static SharedPreferences preferences;

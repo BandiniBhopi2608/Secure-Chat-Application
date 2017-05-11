@@ -9,6 +9,7 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+//Bandini added this controller which handles all chat related activities like saving message and fetching message from database.
 class MessageController extends Controller
 {
 	/*

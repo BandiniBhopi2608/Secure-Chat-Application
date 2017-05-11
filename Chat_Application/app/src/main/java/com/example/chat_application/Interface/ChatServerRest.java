@@ -21,7 +21,7 @@ import retrofit2.http.Body;
 import okhttp3.ResponseBody;
 
 /**
- * Created by brin pereira on 06/04/2017.
+ * Created by Bandini Bhopi on 06/04/2017.
  */
 
 public interface ChatServerRest {

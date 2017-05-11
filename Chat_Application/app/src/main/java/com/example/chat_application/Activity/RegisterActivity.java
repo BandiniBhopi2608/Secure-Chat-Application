@@ -27,14 +27,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
+//Brin Pereira added this class to perform Registration activity using two way authentication
 public class RegisterActivity extends AppCompatActivity {
 
+    //Variable Declaration
     Button btnReg;
     EditText edtFirst, edtLast, edtUser, edtPass, edtConfPass, edtEmail, edtNumber, edtPnumber;
     Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile("[a-zA-Z0-9+._%-+]{1,256}" + "@" + "[a-zA-Z0-9][a-zA-Z0-9-]{0,64}" + "(" + "."
             + "[a-zA-Z0-9][a-zA-Z0-9-]{0,25}" + ")+");
     private ProgressDialog pDialog;
+    //-------------------------END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +44,13 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.register);
 
         //initialization of all editText
-        //For Testing
         edtFirst = (EditText) findViewById(R.id.edtfirstname);
         edtFirst.setTextColor(Color.BLACK);
         edtFirst.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
-                    if (edtFirst.getText().toString().length() == 0)
-                    {
+                if (!hasFocus) {
+                    if (edtFirst.getText().toString().length() == 0) {
                         edtFirst.setError("First name not entered");
                     }
 
@@ -64,12 +63,10 @@ public class RegisterActivity extends AppCompatActivity {
         edtLast.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
-                    if (edtLast.getText().toString().length() == 0)
-                    {
+                if (!hasFocus) {
+                    if (edtLast.getText().toString().length() == 0) {
                         edtLast.setError("Last name not entered");
-                       }
+                    }
 
                 }
             }
@@ -80,11 +77,10 @@ public class RegisterActivity extends AppCompatActivity {
         edtPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
+                if (!hasFocus) {
                     if (edtPass.getText().toString().length() == 0) {
                         edtPass.setError("Password not entered");
-                        }
+                    }
 
                     if (edtPass.length() < 8 || edtPass.length() > 20) {
                         edtPass.setError("Please enter password of length between 8-20");
@@ -99,15 +95,14 @@ public class RegisterActivity extends AppCompatActivity {
         edtConfPass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
+                if (!hasFocus) {
                     if (edtConfPass.getText().toString().length() == 0) {
                         edtConfPass.setError("Please confirm password");
-                       }
+                    }
 
                     if (!edtPass.getText().toString().equals(edtConfPass.getText().toString())) {
                         edtConfPass.setError("Password Not matched");
-                       }
+                    }
 
                 }
             }
@@ -118,12 +113,10 @@ public class RegisterActivity extends AppCompatActivity {
         edtNumber.setTextColor(Color.BLACK);
         edtPnumber = (EditText) findViewById(R.id.edtPnumber);
         edtPnumber.setTextColor(Color.BLACK);
-        edtPnumber.setOnFocusChangeListener(new View.OnFocusChangeListener()
-        {
+        edtPnumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
+                if (!hasFocus) {
 
                     if (edtPnumber.length() < 10 || edtPnumber.length() > 10) {
                         edtPnumber.setError("Please enter 10 digit mobile number");
@@ -138,8 +131,7 @@ public class RegisterActivity extends AppCompatActivity {
         edtEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus)
-                {
+                if (!hasFocus) {
                     if (!EMAIL_ADDRESS_PATTERN.matcher(edtEmail.getText()).matches()) {
                         edtEmail.setError("Please enter valid email addresss");
                     }
@@ -161,23 +153,15 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
-
-
-
-                    pDialog.setMessage("Please wait ...");
-                    pDialog.show();
-                    registerUser();
-                    pDialog.dismiss();
-                    //Intent i = new Intent(getApplicationContext(), VerificationActivity.class);
-                    //startActivity(i);
-                    //finish();
-
-
+                pDialog.setMessage("Please wait ...");
+                pDialog.show();
+                registerUser();
+                pDialog.dismiss();
             }
         });
     }
 
-    //Bandini added this function on 22-04-2017
+    //Brin added this function on 22-04-2017
     //This function register the user and ask to verify
     public void registerUser() {
         //Creating User object and assigning values to it
@@ -194,6 +178,7 @@ public class RegisterActivity extends AppCompatActivity {
         //endregion
 
         try {
+            //Passing the User object to server to save user data on the server.
             RetroBuilder.ConnectToWebService().register(objUser).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -216,7 +201,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("phone", serverResp.getString("phone"));
                                         bundle.putString("id", serverResp.getString("id"));
-                                        LoginActivity loginagain = new LoginActivity();  // vague code
+                                        LoginActivity loginagain = new LoginActivity();
                                         Toast.makeText(getApplicationContext(), "We located your account. Please login.", Toast.LENGTH_LONG).show();
                                         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                         startActivity(intent);

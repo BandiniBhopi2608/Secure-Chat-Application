@@ -29,7 +29,6 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".Activity.VerificationActivity" />
-        <activity android:name=".Activity.ScreenActivity" />
         <activity android:name=".Activity.QRCodeGeneratorActivity" />
         <activity android:name=".Activity.QRCodeREaderActivity" />
         <activity android:name=".Activity.ChatActivity"></activity>

@@ -2,6 +2,7 @@ package com.example.chat_application.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+//Brin Added to this class to verify the user while registering with the system.
+//User will enter the verification code received in mail and ask system to verify himself.
 public class VerificationActivity extends AppCompatActivity {
     //Variable Declaration
     //region
@@ -37,13 +40,13 @@ public class VerificationActivity extends AppCompatActivity {
     private User objUser;
     //endregion
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
 
         edtveriCode = (EditText) findViewById(R.id.edtVeriCode);
+        edtveriCode.setTextColor(Color.BLACK);
         btnVer = (Button) findViewById(R.id.button4); // verify button
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
@@ -66,7 +69,6 @@ public class VerificationActivity extends AppCompatActivity {
                     pDialog.show();
                     ValidateUser();
                     pDialog.dismiss();
-                    //finish();
                 }
             }
         });

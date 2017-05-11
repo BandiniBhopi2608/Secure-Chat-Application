@@ -19,6 +19,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by BANDINI on 22-04-2017.
  */
 
+//To make GET, POST request to the server we used Retrofit
+//Reference: http://www.vogella.com/tutorials/Retrofit/article.html
 public class RetroBuilder {
 
     private static final String strServerURL = "https://cryptoninja.me/api/";
@@ -32,7 +34,6 @@ public class RetroBuilder {
         httpClient.addInterceptor(logging);
 
         // If you have JWT add it to the header
-
         if (PreferenceManager.contains(PreferenceKeys.JWT)) {
             httpClient.addInterceptor(new Interceptor() {
                 @Override

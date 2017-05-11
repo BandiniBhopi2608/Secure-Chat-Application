@@ -4,16 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.example.chat_application.Activity.ChatActivity;
-import com.example.chat_application.Activity.ScreenActivity;
 import com.example.chat_application.Adapter.FriendListAdapter;
 import com.example.chat_application.Model.User;
 import com.example.chat_application.R;
@@ -31,9 +28,8 @@ public class FriendList extends Fragment implements AdapterView.OnItemClickListe
     private Realm realm;
     private FriendListAdapter adapter;
     private ListView lstviewFriends;
-    //Button btnShowPublicKey;
-    //Button btnAddFriend;
     private User objUser;
+    //-------------------------END
 
     @Nullable
     @Override
